@@ -3,13 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import BotonAccesible from '../components/ui/BotonAccesible';
 
 const tonos = [
-  { id: 'suave', nombre: 'Suave y calmado', descripcion: 'Desaturacion lenta, particulas suaves, fade out prolongado.' },
-  { id: 'intenso', nombre: 'Intenso y energico', descripcion: 'Explosion de color, zoom out, corte a negro con eco.' },
-  { id: 'suspensivo', nombre: 'Suspensivo y abierto', descripcion: 'Fragmentacion del ultimo frame, nota sostenida.' },
-  { id: 'silencio', nombre: 'Silencio absoluto', descripcion: 'Fundido a negro limpio, sin efectos ni sonido.' },
+  { id: 'suave', nombre: 'SUAVE Y CALMADO', descripcion: 'Desaturacion lenta, particulas suaves, fade out prolongado.' },
+  { id: 'intenso', nombre: 'INTENSO Y ENERGICO', descripcion: 'Explosion de color, zoom out, corte a negro con eco.' },
+  { id: 'suspensivo', nombre: 'SUSPENSIVO Y ABIERTO', descripcion: 'Fragmentacion del ultimo frame, nota sostenida.' },
+  { id: 'silencio', nombre: 'SILENCIO ABSOLUTO', descripcion: 'Fundido a negro limpio, sin efectos ni sonido.' },
 ];
 
-const instrumentos = ['Piano', 'Bateria', 'Cuerdas', 'Efecto'];
+const instrumentos = ['PIANO', 'BATERIA', 'CUERDAS', 'EFECTO'];
 
 export default function Cierre() {
   const { id } = useParams();
@@ -17,63 +17,43 @@ export default function Cierre() {
   const [instrumentoSeleccionado, setInstrumentoSeleccionado] = useState(null);
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-[#F0F0F0] flex flex-col">
-      <header className="flex justify-between items-center px-6 py-4 border-b border-[#404040]">
-        <Link to={'/editor/' + id} className="text-[#B0B0B0] hover:text-[#F0F0F0]">
-          Volver al editor
-        </Link>
-        <h1 className="text-xl font-bold text-[#6BB5FF]">Cierre de pelicula</h1>
-        <div></div>
-      </header>
+    <div className="flex flex-col">
+      <div className="px-6 py-3 border-b-2 border-black flex gap-2 items-center text-sm font-bold" style={{ backgroundColor: '#1A3A5C' }}>
+        <Link to="/biblioteca" className="text-[#4DE8FF] hover:text-[#FFE156]">BIBLIOTECA</Link>
+        <span className="text-[#FFF8E7]">/</span>
+        <Link to={'/editor/' + id} className="text-[#4DE8FF] hover:text-[#FFE156]">EDITOR: {id?.toUpperCase()}</Link>
+        <span className="text-[#FFF8E7]">/</span>
+        <span className="text-[#FFE156]">CIERRE</span>
+      </div>
 
       <main className="flex-1 max-w-2xl mx-auto px-6 py-12 flex flex-col gap-8">
-        <p className="text-xl text-center">
-          La pelicula ha terminado. Ahora tu decides como cierra.
+        <p className="text-xl text-center font-bold text-[#FFE156]" style={{ textShadow: '2px 2px 0px #000000' }}>
+          LA PELICULA HA TERMINADO. AHORA TU DECIDES COMO CIERRA.
         </p>
 
-        <fieldset>
-          <legend className="text-lg font-bold mb-4">Elige el tono de tu final:</legend>
+        <fieldset className="border-2 border-black p-6 rounded-lg shadow-[6px_6px_0px_#000000]" style={{ backgroundColor: '#1A3A5C' }}>
+          <legend className="text-lg font-bold text-[#FFE156] px-2" style={{ textShadow: '2px 2px 0px #000000' }}>ELIGE EL TONO DE TU FINAL:</legend>
           <div className="flex flex-col gap-3">
             {tonos.map((tono) => (
-              <label
-                key={tono.id}
-                className={
-                  'flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-colors ' +
-                  (tonoSeleccionado === tono.id
-                    ? 'border-[#6BB5FF] bg-[#252525]'
-                    : 'border-[#404040] hover:border-[#B0B0B0]')
-                }
-              >
-                <input
-                  type="radio"
-                  name="tono"
-                  value={tono.id}
-                  checked={tonoSeleccionado === tono.id}
-                  onChange={() => setTonoSeleccionado(tono.id)}
-                  className="mt-1 accent-[#6BB5FF]"
-                />
+              <label key={tono.id} className={'flex items-start gap-4 p-4 rounded-lg border-2 border-black cursor-pointer transition-all shadow-[3px_3px_0px_#000000] ' + (tonoSeleccionado === tono.id ? 'bg-[#00D4AA]' : 'bg-[#2B1B3D] hover:shadow-[1px_1px_0px_#000000]')}>
+                <input type="radio" name="tono" value={tono.id} checked={tonoSeleccionado === tono.id} onChange={() => setTonoSeleccionado(tono.id)} className="mt-1 accent-[#FFE156] w-5 h-5" />
                 <div>
-                  <span className="font-bold text-lg">{tono.nombre}</span>
-                  <p className="text-[#B0B0B0] text-sm mt-1">{tono.descripcion}</p>
+                  <span className="font-bold text-lg" style={{ color: tonoSeleccionado === tono.id ? '#1A3A5C' : '#FFE156' }}>{tono.nombre}</span>
+                  <p className="text-sm mt-1 font-bold" style={{ color: tonoSeleccionado === tono.id ? '#1A3A5C' : '#FFF8E7' }}>{tono.descripcion}</p>
                 </div>
               </label>
             ))}
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend className="text-lg font-bold mb-4">Elige tu ultimo instrumento:</legend>
-          <div className="flex gap-3">
+        <fieldset className="border-2 border-black p-6 rounded-lg shadow-[6px_6px_0px_#000000]" style={{ backgroundColor: '#1A3A5C' }}>
+          <legend className="text-lg font-bold text-[#FFE156] px-2" style={{ textShadow: '2px 2px 0px #000000' }}>ELIGE TU ULTIMO INSTRUMENTO:</legend>
+          <div className="flex gap-3 flex-wrap">
             {instrumentos.map((inst) => (
               <button
                 key={inst}
                 onClick={() => setInstrumentoSeleccionado(inst)}
-                className={
-                  'px-6 py-4 rounded-lg border font-bold transition-colors focus:outline focus:outline-2 focus:outline-[#FFB347] ' +
-                  (instrumentoSeleccionado === inst
-                    ? 'border-[#6BB5FF] bg-[#252525] text-[#6BB5FF]'
-                    : 'border-[#404040] hover:border-[#B0B0B0]')
-                }
+                className={'px-6 py-4 rounded-lg border-2 border-black font-bold transition-all shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] ' + (instrumentoSeleccionado === inst ? 'bg-[#FF6B3D] text-[#FFF8E7]' : 'bg-[#2B1B3D] text-[#FFF8E7]')}
                 style={{ minWidth: '100px', minHeight: '56px' }}
                 aria-pressed={instrumentoSeleccionado === inst}
               >
@@ -83,22 +63,18 @@ export default function Cierre() {
           </div>
         </fieldset>
 
-        <div className="bg-[#2A2A2A] p-6 rounded-lg flex flex-col items-center gap-4">
-          <p className="text-[#B0B0B0]">Toca tu secuencia de cierre (maximo 15 segundos)</p>
-          <div className="text-3xl font-mono">0:00 / 0:15</div>
-          <BotonAccesible variante="primario">
-            Grabar secuencia final
-          </BotonAccesible>
+        <div className="p-6 rounded-lg border-2 border-black flex flex-col items-center gap-4 shadow-[6px_6px_0px_#000000]" style={{ backgroundColor: '#1A3A5C' }}>
+          <p className="text-[#FFF8E7] font-bold">TOCA TU SECUENCIA DE CIERRE (MAXIMO 15 SEGUNDOS)</p>
+          <div className="text-3xl font-mono text-[#FFE156] font-bold">0:00 / 0:15</div>
+          <BotonAccesible variante="primario">GRABAR SECUENCIA FINAL</BotonAccesible>
         </div>
 
-        <div className="flex gap-4 justify-center">
-          <BotonAccesible variante="secundario">Previsualizar</BotonAccesible>
-          <BotonAccesible variante="secundario">Usar cierre predeterminado</BotonAccesible>
+        <div className="flex gap-4 justify-center flex-wrap">
+          <BotonAccesible variante="secundario">PREVISUALIZAR</BotonAccesible>
+          <BotonAccesible variante="secundario">USAR CIERRE PREDETERMINADO</BotonAccesible>
         </div>
 
-        <BotonAccesible variante="primario" className="w-full">
-          Confirmar y guardar
-        </BotonAccesible>
+        <BotonAccesible variante="primario" className="w-full">CONFIRMAR Y GUARDAR</BotonAccesible>
       </main>
     </div>
   );

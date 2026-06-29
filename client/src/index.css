@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+  --font-courier: 'Courier Prime', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  font-family: 'Courier Prime', monospace;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+code, button, input, label, .ui-text {
+  font-family: 'JetBrains Mono', monospace;
+}

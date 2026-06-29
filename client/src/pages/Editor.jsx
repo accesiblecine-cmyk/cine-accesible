@@ -66,53 +66,35 @@ export default function Editor() {
     };
     animate();
 
-    return () => {
-      video.pause();
-    };
+    return () => { video.pause(); };
   }, []);
 
   useEffect(() => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.u_efectoActivo.value = efectoActivo ? 1.0 : 0.0;
-    }
+    if (materialRef.current) materialRef.current.uniforms.u_efectoActivo.value = efectoActivo ? 1.0 : 0.0;
   }, [efectoActivo]);
 
   useEffect(() => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.u_intensidad.value = intensidadEfectos;
-    }
+    if (materialRef.current) materialRef.current.uniforms.u_intensidad.value = intensidadEfectos;
   }, [intensidadEfectos]);
 
   const tocarPiano = useCallback(async () => {
     await Tone.start();
-    const sampler = new Tone.Sampler({
-      urls: { C4: 'https://tonejs.github.io/audio/casio/C4.mp3' },
-      baseUrl: 'https://tonejs.github.io/audio/',
-    }).toDestination();
+    const sampler = new Tone.Sampler({ urls: { C4: 'https://tonejs.github.io/audio/casio/C4.mp3' }, baseUrl: 'https://tonejs.github.io/audio/' }).toDestination();
     Tone.loaded().then(() => sampler.triggerAttackRelease('C4', '8n'));
     materialRef.current.uniforms.u_tipoEfecto.value = 0;
-    setEfectoActivo(true);
-    setTimeout(() => setEfectoActivo(false), 400);
+    setEfectoActivo(true); setTimeout(() => setEfectoActivo(false), 400);
   }, []);
 
   const tocarBateria = useCallback(async (tipo) => {
     await Tone.start();
-    const urls = {
-      kick: 'https://tonejs.github.io/audio/505/kick.mp3',
-      snare: 'https://tonejs.github.io/audio/505/snare.mp3',
-      hihat: 'https://tonejs.github.io/audio/505/hh.mp3',
-    };
-    const sampler = new Tone.Sampler({
-      urls: { C4: urls[tipo] || urls.kick },
-      baseUrl: 'https://tonejs.github.io/audio/',
-    }).toDestination();
+    const urls = { kick: 'https://tonejs.github.io/audio/505/kick.mp3', snare: 'https://tonejs.github.io/audio/505/snare.mp3', hihat: 'https://tonejs.github.io/audio/505/hh.mp3' };
+    const sampler = new Tone.Sampler({ urls: { C4: urls[tipo] || urls.kick }, baseUrl: 'https://tonejs.github.io/audio/' }).toDestination();
     Tone.loaded().then(() => sampler.triggerAttackRelease('C4', '8n'));
     let tipoEfecto = 0;
     if (tipo === 'kick') tipoEfecto = 2;
     else if (tipo === 'snare') tipoEfecto = 3;
     materialRef.current.uniforms.u_tipoEfecto.value = tipoEfecto;
-    setEfectoActivo(true);
-    setTimeout(() => setEfectoActivo(false), 400);
+    setEfectoActivo(true); setTimeout(() => setEfectoActivo(false), 400);
   }, []);
 
   const tocarCuerdas = useCallback(async () => {
@@ -120,89 +102,59 @@ export default function Editor() {
     const synth = new Tone.Synth({ oscillator: { type: 'triangle' } }).toDestination();
     synth.triggerAttackRelease('C4', '2n');
     materialRef.current.uniforms.u_tipoEfecto.value = 1;
-    setEfectoActivo(true);
-    setTimeout(() => setEfectoActivo(false), 800);
+    setEfectoActivo(true); setTimeout(() => setEfectoActivo(false), 800);
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-[#F0F0F0] flex flex-col">
-      <header className="flex justify-between items-center px-6 py-4 border-b border-[#404040]">
-        <div className="flex gap-4 items-center">
-          <Link to="/biblioteca" className="text-[#B0B0B0] hover:text-[#F0F0F0]">Volver</Link>
-          <h1 className="text-xl font-bold text-[#6BB5FF]">Editor</h1>
-        </div>
+    <div className="flex flex-col">
+      <div className="px-6 py-3 border-b-2 border-black flex gap-2 items-center text-sm font-bold" style={{ backgroundColor: '#1A3A5C' }}>
+        <Link to="/biblioteca" className="text-[#4DE8FF] hover:text-[#FFE156]">BIBLIOTECA</Link>
+        <span className="text-[#FFF8E7]">/</span>
+        <span className="text-[#FFE156]">EDITOR: {id?.toUpperCase()}</span>
+      </div>
+
+      <header className="flex justify-between items-center px-6 py-4">
+        <h1 className="text-xl font-bold text-[#FFE156]" style={{ textShadow: '2px 2px 0px #000000' }}>EDITOR</h1>
         <div className="flex gap-3">
-          <BotonAccesible variante="secundario">Guardar</BotonAccesible>
+          <BotonAccesible variante="secundario">GUARDAR (Ctrl+S)</BotonAccesible>
           <Link to={'/editor/' + id + '/cierre'}>
-            <BotonAccesible variante="primario">Terminar</BotonAccesible>
+            <BotonAccesible variante="primario">TERMINAR</BotonAccesible>
           </Link>
         </div>
       </header>
 
       <div className="flex-1 flex">
         <div className="flex-1 p-6 flex flex-col items-center justify-center gap-4">
-          {!videoCargado && (
-            <p className="text-[#B0B0B0]">Cargando video...</p>
-          )}
-          <canvas
-            ref={canvasRef}
-            className="rounded-lg border border-[#404040]"
-            width={800}
-            height={450}
-          />
+          {!videoCargado && <p className="text-[#FFE156] font-bold">CARGANDO VIDEO...</p>}
+          <canvas ref={canvasRef} className="rounded-lg border-2 border-black shadow-[6px_6px_0px_#000000]" width={800} height={450} />
           <div className="flex gap-4 items-center">
-            <button
-              onClick={() => videoRef.current?.play()}
-              className="text-[#6BB5FF] hover:text-[#5AA4EE] text-lg py-2 px-4"
-              aria-label="Reproducir video"
-            >
-              Play
-            </button>
-            <button
-              onClick={() => videoRef.current?.pause()}
-              className="text-[#6BB5FF] hover:text-[#5AA4EE] text-lg py-2 px-4"
-              aria-label="Pausar video"
-            >
-              Pausa
-            </button>
+            <button onClick={() => videoRef.current?.play()} className="text-[#4DE8FF] hover:text-[#FFE156] text-lg font-bold px-4 py-2 border-2 border-black shadow-[3px_3px_0px_#000000]" aria-label="Reproducir video">PLAY</button>
+            <button onClick={() => videoRef.current?.pause()} className="text-[#4DE8FF] hover:text-[#FFE156] text-lg font-bold px-4 py-2 border-2 border-black shadow-[3px_3px_0px_#000000]" aria-label="Pausar video">PAUSA</button>
           </div>
         </div>
 
-        <aside className="w-80 bg-[#252525] p-6 flex flex-col gap-6 border-l border-[#404040] overflow-y-auto">
-          <h2 className="text-lg font-bold">Instrumentos</h2>
+        <aside className="w-80 p-6 flex flex-col gap-6 border-l-2 border-black overflow-y-auto" style={{ backgroundColor: '#1A3A5C' }}>
+          <h2 className="text-lg font-bold text-[#FFE156]">INSTRUMENTOS</h2>
 
           <div className="flex gap-2">
             {['piano', 'bateria', 'cuerdas'].map((inst) => (
               <button
                 key={inst}
                 onClick={() => setInstrumentoActual(inst)}
-                className={
-                  'px-4 py-2 rounded-lg font-medium transition-colors ' +
-                  (instrumentoActual === inst
-                    ? 'bg-[#6BB5FF] text-[#1A1A1A]'
-                    : 'bg-[#1A1A1A] text-[#B0B0B0] border border-[#404040] hover:border-[#B0B0B0]')
-                }
+                className={'px-4 py-2 font-bold border-2 border-black transition-all shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] ' + (instrumentoActual === inst ? 'bg-[#FF6B3D] text-[#FFF8E7]' : 'bg-[#2B1B3D] text-[#FFF8E7]')}
                 aria-pressed={instrumentoActual === inst}
               >
-                {inst.charAt(0).toUpperCase() + inst.slice(1)}
+                {inst.toUpperCase()}
               </button>
             ))}
           </div>
 
           {instrumentoActual === 'piano' && (
             <div className="flex flex-col gap-4">
-              <h3 className="text-[#B0B0B0] text-sm">Piano</h3>
+              <h3 className="text-[#4DE8FF] text-sm font-bold">PIANO</h3>
               <div className="flex gap-2 flex-wrap">
-                {['Do', 'Re', 'Mi', 'Fa', 'Sol'].map((nota) => (
-                  <button
-                    key={nota}
-                    onClick={tocarPiano}
-                    className="bg-[#1A1A1A] border border-[#404040] hover:border-[#6BB5FF] text-[#F0F0F0] rounded-lg py-3 px-4 focus:outline focus:outline-2 focus:outline-[#FFB347]"
-                    style={{ minWidth: '52px', minHeight: '52px' }}
-                    aria-label={'Piano nota ' + nota}
-                  >
-                    {nota}
-                  </button>
+                {['DO', 'RE', 'MI', 'FA', 'SOL'].map((nota) => (
+                  <button key={nota} onClick={tocarPiano} className="bg-[#2B1B3D] border-2 border-black hover:border-[#FFE156] text-[#FFF8E7] font-bold rounded-lg py-3 px-4 shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all" style={{ minWidth: '52px', minHeight: '52px' }} aria-label={'Piano nota ' + nota}>{nota}</button>
                 ))}
               </div>
             </div>
@@ -210,21 +162,10 @@ export default function Editor() {
 
           {instrumentoActual === 'bateria' && (
             <div className="flex flex-col gap-4">
-              <h3 className="text-[#B0B0B0] text-sm">Bateria</h3>
+              <h3 className="text-[#4DE8FF] text-sm font-bold">BATERIA</h3>
               <div className="flex gap-3">
-                {[
-                  { nombre: 'Kick', tipo: 'kick', label: 'Bombo' },
-                  { nombre: 'Snare', tipo: 'snare', label: 'Caja' },
-                  { nombre: 'Hi-hat', tipo: 'hihat', label: 'Platillo' },
-                ].map((pad) => (
-                  <button
-                    key={pad.nombre}
-                    onClick={() => tocarBateria(pad.tipo)}
-                    className="bg-[#1A1A1A] border border-[#404040] hover:border-[#6BB5FF] text-[#F0F0F0] rounded-full w-16 h-16 flex items-center justify-center text-sm font-bold focus:outline focus:outline-2 focus:outline-[#FFB347]"
-                    aria-label={'Bateria ' + pad.label}
-                  >
-                    {pad.nombre}
-                  </button>
+                {[{ nombre: 'KICK', tipo: 'kick' }, { nombre: 'SNARE', tipo: 'snare' }, { nombre: 'HH', tipo: 'hihat' }].map((pad) => (
+                  <button key={pad.nombre} onClick={() => tocarBateria(pad.tipo)} className="bg-[#2B1B3D] border-2 border-black hover:border-[#FFE156] text-[#FFF8E7] font-bold rounded-full w-16 h-16 shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all" aria-label={'Bateria ' + pad.nombre}>{pad.nombre}</button>
                 ))}
               </div>
             </div>
@@ -232,33 +173,14 @@ export default function Editor() {
 
           {instrumentoActual === 'cuerdas' && (
             <div className="flex flex-col gap-4">
-              <h3 className="text-[#B0B0B0] text-sm">Cuerdas</h3>
-              <button
-                onClick={tocarCuerdas}
-                className="bg-[#1A1A1A] border border-[#404040] hover:border-[#6BB5FF] text-[#F0F0F0] rounded-lg py-4 px-6 w-full focus:outline focus:outline-2 focus:outline-[#FFB347]"
-                style={{ minHeight: '56px' }}
-                aria-label="Cuerdas, sonido sostenido"
-              >
-                Tocar cuerda
-              </button>
+              <h3 className="text-[#4DE8FF] text-sm font-bold">CUERDAS</h3>
+              <button onClick={tocarCuerdas} className="bg-[#2B1B3D] border-2 border-black hover:border-[#FFE156] text-[#FFF8E7] font-bold rounded-lg py-4 px-6 w-full shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all" style={{ minHeight: '56px' }} aria-label="Cuerdas, sonido sostenido">TOCAR CUERDA</button>
             </div>
           )}
 
           <div className="flex flex-col gap-2 mt-4">
-            <label htmlFor="intensidad" className="text-[#B0B0B0] text-sm">
-              Intensidad de efectos
-            </label>
-            <input
-              id="intensidad"
-              type="range"
-              min="0"
-              max="100"
-              value={intensidadEfectos * 100}
-              onChange={(e) => useEditorStore.getState().setIntensidadEfectos(e.target.value / 100)}
-              className="w-full accent-[#6BB5FF]"
-              aria-label="Intensidad de efectos"
-            />
-            <span className="text-xs text-[#B0B0B0]">{Math.round(intensidadEfectos * 100)}%</span>
+            <label htmlFor="intensidad" className="text-[#FFE156] text-sm font-bold">INTENSIDAD: {Math.round(intensidadEfectos * 100)}%</label>
+            <input id="intensidad" type="range" min="0" max="100" value={intensidadEfectos * 100} onChange={(e) => useEditorStore.getState().setIntensidadEfectos(e.target.value / 100)} className="w-full accent-[#FF6B3D]" aria-label="Intensidad de efectos" />
           </div>
         </aside>
       </div>
