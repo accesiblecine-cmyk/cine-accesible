@@ -324,7 +324,7 @@ export default function Editor() {
                             <td className="py-1 px-2" style={{ color: '#00D4AA' }}>{p.nombreEfecto}</td>
                             <td className="py-1 px-2 flex gap-1">
                               <button onClick={() => irAPunto(p)} className="px-2 py-0.5 border border-black text-xs font-bold shadow-[1px_1px_0px_#000000] hover:shadow-none transition-all" style={{ backgroundColor: '#4DE8FF', color: '#1A3A5C' }} title={'Ir al segundo ' + formatoTiempo(p.tiempo)}>IR</button>
-                              <button onClick={() => borrarPunto(p.id)} className="px-2 py-0.5 border border-black text-xs font-bold shadow-[1px_1px_0px_#000000] hover:shadow-none transition-all" style={{ backgroundColor: colores.error, color: '#FFF8E7' }} title="Eliminar punto">X</button>
+                              <button onClick={() => borrarPunto(p.id)} className="px-2 py-0.5 border border-black text-xs font-bold shadow-[1px_1px_0px_#000000] hover:shadow-none transition-all" style={{ backgroundColor: '#E0254F', color: '#FFF8E7' }} title="Eliminar punto">X</button>
                             </td>
                           </tr>
                         );
@@ -420,6 +420,7 @@ export default function Editor() {
     </div>
   );
 }
+
 
 
 

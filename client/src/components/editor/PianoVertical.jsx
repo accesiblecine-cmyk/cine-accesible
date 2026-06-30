@@ -47,7 +47,7 @@ export default function PianoVertical({ onNotaTocada, colores, activo }) {
             onClick={() => { onNotaTocada(nota); setTeclaActiva(nota.nombre); setTimeout(() => setTeclaActiva(null), 150); }}
             className={'font-bold border-2 border-black transition-all active:scale-95 relative ' + (esNegra ? 'text-xs h-6' : 'text-sm h-8')}
             style={{
-              backgroundColor: activa ? colores.accent4 : (esNegra ? '#000000' : '#FFFFFF'),
+              backgroundColor: activa ? '#FFE156' : (esNegra ? '#000000' : '#FFFFFF'),
               color: esNegra ? (activa ? '#000000' : '#FFFFFF') : '#1A3A5C',
               borderRadius: '4px',
               boxShadow: activa ? '1px 1px 0px #000000' : '2px 2px 0px #000000',
@@ -68,3 +68,4 @@ export default function PianoVertical({ onNotaTocada, colores, activo }) {
     </div>
   );
 }
+
