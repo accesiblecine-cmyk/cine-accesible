@@ -11,6 +11,7 @@ import Registro from './pages/Registro';
 import Biblioteca from './pages/Biblioteca';
 import Editor from './pages/Editor';
 import Cierre from './pages/Cierre';
+import Perfil from './pages/Perfil';
 
 function Layout({ children }) {
   const tamanoTexto = useAccesibilidadStore((s) => s.tamanoTexto);
@@ -84,13 +85,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout><Landing /></Layout>} />
-        <Route path="/login" element={<Layout><Login /></Layout>} />
-        <Route path="/registro" element={<Layout><Registro /></Layout>} />
-        <Route path="/biblioteca" element={<Layout><RutaProtegida><Biblioteca /></RutaProtegida></Layout>} />
-        <Route path="/editor/:id" element={<Layout><RutaProtegida><Editor /></RutaProtegida></Layout>} />
-        <Route path="/editor/:id/cierre" element={<Layout><RutaProtegida><Cierre /></RutaProtegida></Layout>} />
-      </Routes>
+  <Route path="/" element={<Layout><Landing /></Layout>} />
+  <Route path="/login" element={<Layout><Login /></Layout>} />
+  <Route path="/registro" element={<Layout><Registro /></Layout>} />
+  <Route path="/biblioteca" element={<Layout><RutaProtegida><Biblioteca /></RutaProtegida></Layout>} />
+  <Route path="/editor/:id" element={<Layout><RutaProtegida><Editor /></RutaProtegida></Layout>} />
+  <Route path="/editor/:id/cierre" element={<Layout><RutaProtegida><Cierre /></RutaProtegida></Layout>} />
+  <Route path="/perfil" element={<Layout><RutaProtegida><Perfil /></RutaProtegida></Layout>} />
+</Routes>
     </BrowserRouter>
   );
 }

@@ -1,16 +1,41 @@
-# React + Vite
+# CINE ACCESIBLE
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Plataforma web interactiva e inclusiva de experiencia audiovisual.
 
-Currently, two official plugins are available:
+El usuario inicia sesion, selecciona una pelicula, entra a un editor donde toca instrumentos digitales y los sonidos modifican los efectos visuales del video en tiempo real. Al terminar, compone su propio final.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Disenado con principios de accesibilidad universal para personas con discapacidad visual, auditiva, hipersensibilidad e hiposensibilidad.
 
-## React Compiler
+## TECNOLOGIAS
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend:** React + Vite + Tailwind CSS + Three.js + Tone.js
+- **Backend:** Node.js + Express + Prisma
+- **Base de datos:** PostgreSQL (Supabase)
+- **Almacenamiento:** Cloudinary
+- **Despliegue:** Vercel (frontend) + Render (backend)
 
-## Expanding the Oxlint configuration
+## FUNCIONALIDADES
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- Registro e inicio de sesion
+- Biblioteca de videos con miniaturas
+- Editor con linea de tiempo y consola de puntos
+- Instrumentos: Piano, Bateria, Cuerdas con diferentes sonidos
+- Efectos visuales en tiempo real (Calido, Frio, Zoom, Glitch)
+- Guardado y recuperacion de proyectos
+- Pantalla de cierre personalizable
+- Perfil de usuario con lista de proyectos
+- Panel de accesibilidad con 5 modos preconfigurados
+- Ondas de sonido, subtitulos y vibracion
+- Narrador para discapacidad visual
+
+## MODOS DE ACCESIBILIDAD
+
+- **Normal:** Experiencia completa
+- **Visual:** Alto contraste, texto grande, narrador, sin animaciones
+- **Auditivo:** Ondas de sonido, subtitulos, vibracion
+- **Calma (hipersensible):** Escala de grises, sin animaciones, sin flashes
+- **Intenso (hiposensible):** Colores maximos, vibracion, estimulos multiples
+
+## EQUIPO
+
+Proyecto desarrollado por [Tu nombre] - 2026

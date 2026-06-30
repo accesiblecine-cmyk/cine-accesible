@@ -50,10 +50,19 @@ export async function obtenerProyecto(videoId) {
   return data.length > 0 ? data[0] : null;
 }
 
+export async function obtenerTodosProyectos() {
+  const token = obtenerToken();
+  const res = await fetch(API_URL + '/proyectos', {
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.mensaje);
+  return data;
+}
+
 export async function guardarProyecto({ videoId, timestampVideo, configuracion, historial, proyectoId }) {
   const token = obtenerToken();
   const body = JSON.stringify({ videoId, timestampVideo, configuracion, historial });
-
   if (proyectoId) {
     const res = await fetch(API_URL + '/proyectos/' + proyectoId, {
       method: 'PUT',
@@ -73,6 +82,17 @@ export async function guardarProyecto({ videoId, timestampVideo, configuracion, 
     if (!res.ok) throw new Error(data.mensaje);
     return data;
   }
+}
+
+export async function eliminarProyecto(id) {
+  const token = obtenerToken();
+  const res = await fetch(API_URL + '/proyectos/' + id, {
+    method: 'DELETE',
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.mensaje);
+  return data;
 }
 
 export function cerrarSesion() {

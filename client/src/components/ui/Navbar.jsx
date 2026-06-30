@@ -36,9 +36,9 @@ export default function Navbar() {
             ) : (
               <>
                 <Link to="/biblioteca" className={linkClase('/biblioteca')}>BIBLIOTECA</Link>
-                <span className="text-[#4DE8FF] font-bold text-sm border-2 border-[#4DE8FF] px-3 py-1 shadow-[2px_2px_0px_#000000]">
-                  {usuario?.nombre?.toUpperCase() || 'USUARIO'}
-                </span>
+               <Link to="/perfil" className="text-[#4DE8FF] font-bold text-xs border-2 border-[#4DE8FF] px-3 py-1 shadow-[2px_2px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all hidden sm:inline no-underline">
+  {usuario?.nombre?.toUpperCase() || 'USUARIO'}
+</Link>
                 <button
                   onClick={handleLogout}
                   className="px-5 py-2 font-bold text-[#FFE156] border-2 border-black bg-[#E0254F] shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-200"
