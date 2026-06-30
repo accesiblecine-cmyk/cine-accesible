@@ -28,6 +28,12 @@ const TIPOS_CUERDAS = [
 
 export default function Editor() {
   const { id } = useParams();
+const [videoUrl, setVideoUrl] = useState('');
+useEffect(() => {
+  import('../utils/api').then(api => {
+    api.obtenerVideo(id).then(v => setVideoUrl(v.url)).catch(() => setVideoUrl('/videos/sample.mp4'));
+  });
+}, [id]);
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const materialRef = useRef(null);
@@ -142,7 +148,7 @@ export default function Editor() {
 
   useEffect(() => {
     const video = document.createElement('video');
-    video.src = '/videos/sample.mp4';
+    video.src = videoUrl || '/videos/sample.mp4';
     video.loop = false; video.muted = true; video.crossOrigin = 'anonymous';
     video.playsInline = true; video.preload = 'auto'; video.setAttribute('playsinline', '');
     video.addEventListener('loadeddata', () => { setVideoCargado(true); setDuracion(video.duration); setVideoListo(true); });
@@ -159,7 +165,7 @@ export default function Editor() {
     video.addEventListener('play', () => { puntosReproducidosRef.current.clear(); });
     video.addEventListener('seeked', () => { puntosReproducidosRef.current.clear(); });
     videoRef.current = video;
-  }, [ejecutarPunto]);
+  }, [ejecutarPunto, videoUrl]);
 
   useEffect(() => {
     if (!canvasRef.current || !videoRef.current || !videoCargado) return;

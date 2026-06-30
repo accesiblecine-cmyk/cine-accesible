@@ -33,6 +33,13 @@ export async function obtenerVideos() {
   return data;
 }
 
+export async function obtenerVideo(id) {
+  const res = await fetch(API_URL + '/videos/' + id);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.mensaje);
+  return data;
+}
+
 export function cerrarSesion() {
   localStorage.removeItem('token');
   localStorage.removeItem('usuario');

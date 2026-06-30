@@ -87,7 +87,6 @@ export default function Biblioteca() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {videosFiltrados.map((video) => {
             const colorFondo = coloresPorCategoria[video.categoria] || '#1A3A5C';
-            const ariaLabel = video.titulo + ', duracion ' + Math.floor(video.duracion / 60) + ':' + (video.duracion % 60).toString().padStart(2, '0') + ', categoria ' + video.categoria;
             const duracionFormato = Math.floor(video.duracion / 60) + ':' + (video.duracion % 60).toString().padStart(2, '0');
             return (
               <Link
@@ -95,14 +94,18 @@ export default function Biblioteca() {
                 to={'/editor/' + video.id}
                 className="rounded-lg overflow-hidden border-2 border-black transition-all duration-200 shadow-[6px_6px_0px_#000000] hover:shadow-[3px_3px_0px_#000000] hover:translate-x-[3px] hover:translate-y-[3px] focus:outline focus:outline-3 focus:outline-[#FFE156] group"
                 style={{ backgroundColor: '#1A3A5C' }}
-                aria-label={ariaLabel}
+                aria-label={video.titulo}
               >
                 <div className="h-44 flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: colorFondo }}>
-                  <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)' }}></div>
-                  <span className="text-5xl font-black opacity-40 group-hover:opacity-60 transition-opacity text-white">
+                  <img 
+                    src={video.thumbnail || video.url?.replace('/upload/', '/upload/w_400,h_225,c_fill/')} 
+                    alt={video.titulo}
+                    className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                  <span className="text-5xl font-black opacity-30 group-hover:opacity-0 transition-opacity text-white z-10">
                     {video.titulo.charAt(0)}
                   </span>
-                  <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black to-transparent opacity-50"></div>
                 </div>
                 <div className="p-4">
                   <h3 className="font-bold text-lg mb-1 group-hover:underline text-[#FFE156]">{video.titulo}</h3>
