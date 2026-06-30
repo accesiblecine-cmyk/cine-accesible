@@ -26,6 +26,13 @@ export async function login(email, password) {
   return data;
 }
 
+export async function obtenerVideos() {
+  const res = await fetch(API_URL + '/videos');
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.mensaje);
+  return data;
+}
+
 export function cerrarSesion() {
   localStorage.removeItem('token');
   localStorage.removeItem('usuario');
