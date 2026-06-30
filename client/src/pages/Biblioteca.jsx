@@ -1,25 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import BotonAccesible from '../components/ui/BotonAccesible';
+import { obtenerVideos } from '../utils/api';
 
-const videos = [
-  { id: 'bosque', titulo: 'BOSQUE EN NIEBLA', duracion: '2:30', categoria: 'NATURALEZA', color: '#2D5A27' },
-  { id: 'olas', titulo: 'OLAS DEL MAR', duracion: '1:45', categoria: 'NATURALEZA', color: '#1B4F72' },
-  { id: 'ciudad', titulo: 'LUCES DE CIUDAD', duracion: '3:00', categoria: 'URBANO', color: '#5B2C6F' },
-  { id: 'abstracto', titulo: 'FORMAS Y COLORES', duracion: '2:15', categoria: 'ABSTRACTO', color: '#B03A2E' },
-];
-
-const categorias = ['TODOS', 'NATURALEZA', 'URBANO', 'ABSTRACTO'];
+const coloresPorCategoria = {
+  Naturaleza: '#2D5A27',
+  Urbano: '#5B2C6F',
+  Abstracto: '#B03A2E',
+};
 
 export default function Biblioteca() {
+  const [videos, setVideos] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('TODOS');
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    obtenerVideos()
+      .then(data => { setVideos(data); setCargando(false); })
+      .catch(err => { setError('No se pudieron cargar los videos'); setCargando(false); });
+  }, []);
+
+  const categorias = ['TODOS', ...new Set(videos.map(v => v.categoria))];
 
   const videosFiltrados = videos.filter(v => {
     const coincideBusqueda = v.titulo.toLowerCase().includes(busqueda.toLowerCase());
     const coincideCategoria = categoriaFiltro === 'TODOS' || v.categoria === categoriaFiltro;
     return coincideBusqueda && coincideCategoria;
   });
+
+  if (cargando) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-xl font-bold text-[#FFE156] animate-pulse">CARGANDO VIDEOS...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-xl font-bold text-[#E0254F]">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="px-8 py-12 max-w-6xl mx-auto">
@@ -61,7 +86,9 @@ export default function Biblioteca() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {videosFiltrados.map((video) => {
-            const ariaLabel = video.titulo + ', duracion ' + video.duracion + ', categoria ' + video.categoria;
+            const colorFondo = coloresPorCategoria[video.categoria] || '#1A3A5C';
+            const ariaLabel = video.titulo + ', duracion ' + Math.floor(video.duracion / 60) + ':' + (video.duracion % 60).toString().padStart(2, '0') + ', categoria ' + video.categoria;
+            const duracionFormato = Math.floor(video.duracion / 60) + ':' + (video.duracion % 60).toString().padStart(2, '0');
             return (
               <Link
                 key={video.id}
@@ -70,7 +97,7 @@ export default function Biblioteca() {
                 style={{ backgroundColor: '#1A3A5C' }}
                 aria-label={ariaLabel}
               >
-                <div className="h-44 flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: video.color }}>
+                <div className="h-44 flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: colorFondo }}>
                   <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)' }}></div>
                   <span className="text-5xl font-black opacity-40 group-hover:opacity-60 transition-opacity text-white">
                     {video.titulo.charAt(0)}
@@ -80,7 +107,7 @@ export default function Biblioteca() {
                 <div className="p-4">
                   <h3 className="font-bold text-lg mb-1 group-hover:underline text-[#FFE156]">{video.titulo}</h3>
                   <div className="flex justify-between items-center">
-                    <p className="text-sm font-bold text-[#FFF8E7]">{video.duracion}</p>
+                    <p className="text-sm font-bold text-[#FFF8E7]">{duracionFormato}</p>
                     <span className="text-xs font-bold px-2 py-1 rounded border border-black bg-[#2B1B3D] text-[#4DE8FF]">
                       {video.categoria}
                     </span>
