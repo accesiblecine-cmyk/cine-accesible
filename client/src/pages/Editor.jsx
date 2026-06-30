@@ -89,9 +89,7 @@ export default function Editor() {
   }, [id]);
 
   useEffect(() => {
-    import('../utils/api').then(api => {
-      api.obtenerVideo(id).then(v => setVideoUrl(v.url)).catch(() => setVideoUrl('/videos/sample.mp4'));
-    });
+    obtenerVideo(id).then(v => setVideoUrl(v.url)).catch(() => setVideoUrl('/videos/sample.mp4'));
   }, [id]);
 
   const iniciarAudio = useCallback(async () => {
@@ -411,7 +409,7 @@ export default function Editor() {
                 {!bateriaCargada && <p className="text-xs font-bold" style={{ color: '#FFE156' }}>CARGANDO...</p>}
                 <div className="flex flex-col gap-2">
                   {[{ n: 'KICK (1)', t: 'kick', c: '#FF6B3D' }, { n: 'SNARE (2)', t: 'snare', c: '#FFE156' }, { n: 'HH (3)', t: 'hihat', c: '#4DE8FF' }, { n: 'CRASH (4)', t: 'crash', c: '#FF4582' }, { n: 'TOM (5)', t: 'tom', c: '#00D4AA' }].map(p => (
-                    <button key={p.n} onClick={() => tocarBateria(p.t)} className="font-bold rounded-lg py-3 border-2 border-black shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-sm active:scale-95 w-full" style={{ backgroundColor: p.c, color: '#1A3A5C' }} title={'Tocar ' + p.n.split(' ')[0] + ' (Tecla ' + p.t.charAt(0).toUpperCase() + ')'}>{p.n}</button>
+                    <button key={p.n} onClick={() => tocarBateria(p.t)} className="font-bold rounded-lg py-3 border-2 border-black shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-sm active:scale-95 w-full" style={{ backgroundColor: p.c, color: '#1A3A5C' }}>{p.n}</button>
                   ))}
                 </div>
                 <div className="flex items-center gap-1">
@@ -461,7 +459,7 @@ export default function Editor() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black opacity-60" onClick={() => setMostrarDialogoGuardar(false)}></div>
           <div className="relative z-50 p-8 rounded-lg border-2 border-black shadow-[8px_8px_0px_#000000] text-center max-w-sm mx-4" style={{ backgroundColor: '#1A3A5C' }}>
-            <p className="text-[#FFE156] font-bold text-lg mb-6">¿QUIERES GUARDAR ANTES DE SALIR?</p>
+            <p className="text-[#FFE156] font-bold text-lg mb-6">QUIERES GUARDAR ANTES DE SALIR?</p>
             <div className="flex flex-col gap-3">
               <button onClick={async () => { await handleGuardar(); window.location.href = '/editor/' + id + '/cierre'; }} className="px-6 py-3 rounded-lg border-2 border-black bg-[#00D4AA] text-[#1A3A5C] font-bold shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all">GUARDAR Y TERMINAR</button>
               <button onClick={() => window.location.href = '/editor/' + id + '/cierre'} className="px-6 py-3 rounded-lg border-2 border-black bg-[#E0254F] text-[#FFF8E7] font-bold shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all">SALIR SIN GUARDAR</button>
