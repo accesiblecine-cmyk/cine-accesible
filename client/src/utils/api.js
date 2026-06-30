@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:4000/api';
+const API_URL = 'https://cine-accesible-api.onrender.com/api';
 
 export async function registrar(nombre, email, password) {
   const res = await fetch(API_URL + '/auth/registro', {
