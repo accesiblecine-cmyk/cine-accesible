@@ -17,34 +17,42 @@ function Layout({ children }) {
   const reducirAnimaciones = useAccesibilidadStore((s) => s.reducirAnimaciones);
   const escalaGrises = useAccesibilidadStore((s) => s.escalaGrises);
   const altoContraste = useAccesibilidadStore((s) => s.altoContraste);
-  const colores = useAccesibilidadStore((s) => s.colores);
+  const modoActivo = useAccesibilidadStore((s) => s.modoActivo);
 
   useEffect(() => {
     document.documentElement.style.fontSize = (18 * tamanoTexto) + 'px';
   }, [tamanoTexto]);
 
   useEffect(() => {
-    const estilo = document.getElementById('estilo-accesibilidad');
+    const estiloId = 'estilo-accesibilidad';
+    let estilo = document.getElementById(estiloId);
     if (estilo) estilo.remove();
 
-    const nuevoEstilo = document.createElement('style');
-    nuevoEstilo.id = 'estilo-accesibilidad';
+    estilo = document.createElement('style');
+    estilo.id = estiloId;
     let css = '';
 
     if (reducirAnimaciones) {
-      css += '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }';
+      css += '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; animation-iteration-count: 1 !important; }';
     }
 
     if (escalaGrises) {
       css += 'html { filter: grayscale(100%) !important; }';
     } else if (altoContraste) {
-      css += 'html { filter: contrast(200%) brightness(120%) !important; }';
+      css += 'html { filter: contrast(200%) brightness(130%) !important; }';
+      css += 'body { background-color: #000000 !important; color: #FFFFFF !important; }';
     } else {
-      css += 'html { filter: none; }';
+      css += 'html { filter: none; } body { background-color: auto; color: auto; }';
     }
 
-    nuevoEstilo.textContent = css;
-    document.head.appendChild(nuevoEstilo);
+    estilo.textContent = css;
+    document.head.appendChild(estilo);
+
+    return () => {
+      if (estilo && document.getElementById(estiloId)) {
+        estilo.remove();
+      }
+    };
   }, [reducirAnimaciones, escalaGrises, altoContraste]);
 
   useEffect(() => {
@@ -53,23 +61,21 @@ function Layout({ children }) {
         e.preventDefault();
         window.location.href = '/biblioteca';
       }
-      if (e.ctrlKey && e.key === 'l') {
-        e.preventDefault();
-        window.location.href = '/login';
-      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const isVisualMode = modoActivo === 'visual';
+
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: colores.bg, color: colores.text }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#2B1B3D', color: '#FFF8E7' }}>
       <Navbar />
       <main className="flex-1">
         {children}
       </main>
       <PanelAccesibilidad />
-      <NarradorGlobal />
+      {isVisualMode && <NarradorGlobal />}
     </div>
   );
 }
