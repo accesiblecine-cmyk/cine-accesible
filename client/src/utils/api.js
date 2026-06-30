@@ -95,6 +95,16 @@ export async function eliminarProyecto(id) {
   return data;
 }
 
+export async function obtenerProyectoPorId(proyectoId) {
+  const token = obtenerToken();
+  const res = await fetch(API_URL + '/proyectos/' + proyectoId, {
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.mensaje);
+  return data;
+}
+
 export function cerrarSesion() {
   localStorage.removeItem('token');
   localStorage.removeItem('usuario');

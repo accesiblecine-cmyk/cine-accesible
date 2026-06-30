@@ -106,7 +106,7 @@ export default function Perfil() {
                 </div>
                 <div className="flex gap-3">
                   <Link
-                    to={'/editor/' + proy.videoId}
+                    to={proy.estado === 'completado' ? '/ver/' + proy.id : '/editor/' + proy.videoId}
                     className="px-4 py-2 border-2 border-black font-bold text-xs rounded-lg shadow-[2px_2px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all"
                     style={{ backgroundColor: '#4DE8FF', color: '#1A3A5C' }}
                   >

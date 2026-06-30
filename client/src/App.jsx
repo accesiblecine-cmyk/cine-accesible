@@ -12,6 +12,7 @@ import Biblioteca from './pages/Biblioteca';
 import Editor from './pages/Editor';
 import Cierre from './pages/Cierre';
 import Perfil from './pages/Perfil';
+import Visualizador from './pages/Visualizador';
 
 function Layout({ children }) {
   const tamanoTexto = useAccesibilidadStore((s) => s.tamanoTexto);
@@ -92,6 +93,7 @@ function App() {
   <Route path="/editor/:id" element={<Layout><RutaProtegida><Editor /></RutaProtegida></Layout>} />
   <Route path="/editor/:id/cierre" element={<Layout><RutaProtegida><Cierre /></RutaProtegida></Layout>} />
   <Route path="/perfil" element={<Layout><RutaProtegida><Perfil /></RutaProtegida></Layout>} />
+<Route path="/ver/:id" element={<Layout><Visualizador /></Layout>} />
 </Routes>
     </BrowserRouter>
   );
