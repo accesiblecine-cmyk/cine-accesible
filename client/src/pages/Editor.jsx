@@ -7,6 +7,7 @@ import LineaTiempo from '../components/editor/LineaTiempo';
 import OndasSonido from '../components/editor/OndasSonido';
 import SubtitulosInstrumentos from '../components/editor/SubtitulosInstrumentos';
 import useAccesibilidadStore from '../store/useAccesibilidadStore';
+import { obtenerVideo, obtenerProyecto, guardarProyecto } from '../utils/api';
 
 const NOTAS_CUERDAS = [
   { nombre: 'DO', nota: 'C3' }, { nombre: 'RE', nota: 'D3' }, { nombre: 'MI', nota: 'E3' },
@@ -28,12 +29,6 @@ const TIPOS_CUERDAS = [
 
 export default function Editor() {
   const { id } = useParams();
-const [videoUrl, setVideoUrl] = useState('');
-useEffect(() => {
-  import('../utils/api').then(api => {
-    api.obtenerVideo(id).then(v => setVideoUrl(v.url)).catch(() => setVideoUrl('/videos/sample.mp4'));
-  });
-}, [id]);
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const materialRef = useRef(null);
@@ -46,6 +41,14 @@ useEffect(() => {
   const puntosRef = useRef([]);
   const modoGrabacionRef = useRef(true);
   const efectosActualesRef = useRef({});
+
+  const [videoUrl, setVideoUrl] = useState('');
+  const [proyectoId, setProyectoId] = useState(null);
+  const [mostrarDialogoGuardar, setMostrarDialogoGuardar] = useState(false);
+  const [mostrarDialogoContinuar, setMostrarDialogoContinuar] = useState(false);
+  const [proyectoGuardado, setProyectoGuardado] = useState(null);
+  const [guardando, setGuardando] = useState(false);
+  const [mensajeGuardado, setMensajeGuardado] = useState('');
 
   const [videoCargado, setVideoCargado] = useState(false);
   const [efectosActivos, setEfectosActivos] = useState({});
@@ -68,13 +71,28 @@ useEffect(() => {
   const [muteBateria, setMuteBateria] = useState(false);
   const [muteCuerdas, setMuteCuerdas] = useState(false);
 
-  const colores = useAccesibilidadStore((s) => s.colores);
   const intensidadEfectos = useAccesibilidadStore((s) => s.intensidadEfectos);
   const setIntensidadEfectos = useAccesibilidadStore((s) => s.setIntensidadEfectos);
 
   useEffect(() => { modoGrabacionRef.current = modoGrabacion; }, [modoGrabacion]);
   useEffect(() => { puntosRef.current = puntos; }, [puntos]);
   useEffect(() => { efectosActualesRef.current = efectosActivos; }, [efectosActivos]);
+
+  useEffect(() => {
+    if (!id) return;
+    obtenerProyecto(id).then(proy => {
+      if (proy && proy.estado === 'borrador') {
+        setProyectoGuardado(proy);
+        setMostrarDialogoContinuar(true);
+      }
+    }).catch(() => {});
+  }, [id]);
+
+  useEffect(() => {
+    import('../utils/api').then(api => {
+      api.obtenerVideo(id).then(v => setVideoUrl(v.url)).catch(() => setVideoUrl('/videos/sample.mp4'));
+    });
+  }, [id]);
 
   const iniciarAudio = useCallback(async () => {
     if (audioIniciadoRef.current) return;
@@ -239,7 +257,7 @@ useEffect(() => {
     agregarPunto('Bateria', tipo.toUpperCase(), 'C4', te, ne, '8n');
   }, [muteBateria, bateriaCargada, iniciarAudio, agregarPunto]);
 
- const tocarCuerdas = useCallback(async (notaReal, nombre) => {
+  const tocarCuerdas = useCallback(async (notaReal, nombre) => {
     if (muteCuerdas) return; await iniciarAudio();
     if (useAccesibilidadStore.getState().vibracion) navigator.vibrate?.(80);
     if (synthCuerdasRef.current) synthCuerdasRef.current.triggerAttackRelease(notaReal, '2n');
@@ -248,6 +266,21 @@ useEffect(() => {
 
   const handlePlay = async () => { const v = videoRef.current; if (!v) return; await iniciarAudio(); v.paused ? v.play().catch(() => {}) : v.pause(); };
   const handleReiniciar = () => { const v = videoRef.current; if (v) { v.currentTime = 0; v.pause(); setPuntoSeleccionado(null); puntosReproducidosRef.current.clear(); } };
+
+  const handleGuardar = async () => {
+    setGuardando(true);
+    try {
+      const config = { volPiano, volBateria, volCuerdas, mutePiano, muteBateria, muteCuerdas, tipoPiano, tipoCuerdas, intensidadEfectos };
+      const result = await guardarProyecto({ videoId: id, timestampVideo: tiempoActual, configuracion: config, historial: puntos, proyectoId });
+      if (!proyectoId) setProyectoId(result.id);
+      setMensajeGuardado('PROYECTO GUARDADO');
+      setTimeout(() => setMensajeGuardado(''), 2000);
+    } catch (e) {
+      setMensajeGuardado('ERROR AL GUARDAR');
+      setTimeout(() => setMensajeGuardado(''), 2000);
+    }
+    setGuardando(false);
+  };
 
   const formatoTiempo = (s) => { if (isNaN(s) || s < 0) return '0:00'; const m = Math.floor(s / 60); const se = Math.floor(s % 60); return m + ':' + (se < 10 ? '0' : '') + se; };
 
@@ -291,7 +324,8 @@ useEffect(() => {
         <button onClick={() => setConsolaExpandida(!consolaExpandida)} className="px-2 py-1 border-2 border-black font-bold text-xs shadow-[2px_2px_0px_#000000] transition-all" style={{ backgroundColor: consolaExpandida ? '#FFE156' : '#2B1B3D', color: consolaExpandida ? '#1A3A5C' : '#FFF8E7' }} title={consolaExpandida ? 'Ocultar lista' : 'Mostrar lista de puntos'}>
           LISTA
         </button>
-        <Link to={'/editor/' + id + '/cierre'} className="px-3 py-1 border-2 border-black font-bold text-xs shadow-[2px_2px_0px_#000000] transition-all" style={{ backgroundColor: '#FF6B3D', color: '#FFF8E7' }} title="Ir a la pantalla de cierre">FIN</Link>
+        <button onClick={handleGuardar} className="px-3 py-1.5 border-2 border-black font-bold text-xs shadow-[2px_2px_0px_#000000] transition-all" style={{ backgroundColor: '#00D4AA', color: '#1A3A5C' }} title="Guardar proyecto">{guardando ? '...' : 'GUARDAR'}</button>
+        <button onClick={() => setMostrarDialogoGuardar(true)} className="px-3 py-1 border-2 border-black font-bold text-xs shadow-[2px_2px_0px_#000000] transition-all" style={{ backgroundColor: '#FF6B3D', color: '#FFF8E7' }} title="Ir a pantalla de cierre">FIN</button>
       </header>
 
       <div className="flex-1 flex overflow-hidden">
@@ -305,7 +339,7 @@ useEffect(() => {
             </div>
           </div>
           <div className="px-3 py-2 border-t-2 border-black" style={{ backgroundColor: '#1A3A5C' }}>
-            <LineaTiempo puntos={puntos} tiempoActual={tiempoActual} duracion={duracion} onClic={(t) => { if (videoRef.current) videoRef.current.currentTime = t; }} puntoSeleccionado={puntoSeleccionado} onSeleccionarPunto={(p) => setPuntoSeleccionado(p.id)} colores={colores} />
+            <LineaTiempo puntos={puntos} tiempoActual={tiempoActual} duracion={duracion} onClic={(t) => { if (videoRef.current) videoRef.current.currentTime = t; }} puntoSeleccionado={puntoSeleccionado} onSeleccionarPunto={(p) => setPuntoSeleccionado(p.id)} colores={{ bg: '#2B1B3D', text: '#FFF8E7', accent4: '#FFE156', accent5: '#4DE8FF', accent: '#FF6B3D', error: '#E0254F', accent2: '#00D4AA' }} />
           </div>
           {consolaExpandida && (
             <div className="border-t-2 border-black overflow-y-auto" style={{ backgroundColor: '#1A3A5C', height: '25%', minHeight: '100px', transition: 'height 0.3s ease' }}>
@@ -353,8 +387,7 @@ useEffect(() => {
               <button key={inst.id} onClick={() => setInstrumentoActual(inst.id)}
                 className={'py-2 font-bold text-xs border-b border-black transition-all ' + (instrumentoActual === inst.id ? 'text-[#FFF8E7]' : '')}
                 style={{ backgroundColor: instrumentoActual === inst.id ? inst.color : '#1A3A5C', color: instrumentoActual === inst.id ? '#FFF8E7' : '#FFF8E7' }}
-                title={'Cambiar a ' + inst.label}
-              >{inst.label}</button>
+                title={'Cambiar a ' + inst.label}>{inst.label}</button>
             ))}
           </div>
           <div className="flex-1 p-3 flex flex-col gap-3 overflow-y-auto">
@@ -365,7 +398,7 @@ useEffect(() => {
                     <button key={t.id} onClick={() => setTipoPiano(t.id)} className={'flex-1 py-1 text-xs font-bold border-2 border-black rounded transition-all ' + (tipoPiano === t.id ? 'bg-[#FFE156] text-[#1A3A5C]' : '')} style={{ backgroundColor: tipoPiano !== t.id ? '#2B1B3D' : undefined, color: tipoPiano !== t.id ? '#FFF8E7' : undefined }} title={'Sonido ' + t.nombre}>{t.nombre}</button>
                   ))}
                 </div>
-                <PianoVertical onNotaTocada={handleNotaPiano} colores={colores} volumen={volPiano} activo={instrumentoActual === 'piano'} />
+                <PianoVertical onNotaTocada={handleNotaPiano} colores={{ accent4: '#FFE156' }} volumen={volPiano} activo={instrumentoActual === 'piano'} />
                 <div className="flex items-center gap-1">
                   <button onClick={() => setMutePiano(!mutePiano)} className={'px-2 py-1 border-2 border-black text-xs font-bold ' + (mutePiano ? 'bg-[#E0254F] text-[#FFF8E7]' : 'bg-[#00D4AA] text-[#1A3A5C]')} title={mutePiano ? 'Activar sonido' : 'Silenciar'}>{mutePiano ? 'M' : 'S'}</button>
                   <input type="range" min="0" max="100" value={volPiano * 100} onChange={e => setVolPiano(e.target.value / 100)} className="flex-1 accent-[#FF6B3D] w-16" title={'Volumen: ' + Math.round(volPiano * 100) + '%'} />
@@ -423,17 +456,53 @@ useEffect(() => {
           </div>
         </div>
       </div>
+
+      {mostrarDialogoGuardar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black opacity-60" onClick={() => setMostrarDialogoGuardar(false)}></div>
+          <div className="relative z-50 p-8 rounded-lg border-2 border-black shadow-[8px_8px_0px_#000000] text-center max-w-sm mx-4" style={{ backgroundColor: '#1A3A5C' }}>
+            <p className="text-[#FFE156] font-bold text-lg mb-6">¿QUIERES GUARDAR ANTES DE SALIR?</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={async () => { await handleGuardar(); window.location.href = '/editor/' + id + '/cierre'; }} className="px-6 py-3 rounded-lg border-2 border-black bg-[#00D4AA] text-[#1A3A5C] font-bold shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all">GUARDAR Y TERMINAR</button>
+              <button onClick={() => window.location.href = '/editor/' + id + '/cierre'} className="px-6 py-3 rounded-lg border-2 border-black bg-[#E0254F] text-[#FFF8E7] font-bold shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all">SALIR SIN GUARDAR</button>
+              <button onClick={() => setMostrarDialogoGuardar(false)} className="px-6 py-3 rounded-lg border-2 border-black bg-[#2B1B3D] text-[#FFF8E7] font-bold shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all">CANCELAR</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mostrarDialogoContinuar && proyectoGuardado && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black opacity-60" onClick={() => { setMostrarDialogoContinuar(false); setProyectoGuardado(null); }}></div>
+          <div className="relative z-50 p-8 rounded-lg border-2 border-black shadow-[8px_8px_0px_#000000] text-center max-w-sm mx-4" style={{ backgroundColor: '#1A3A5C' }}>
+            <p className="text-[#FFE156] font-bold text-xl mb-2">TIENES UN PROYECTO GUARDADO</p>
+            <p className="text-[#FFF8E7] text-sm mb-4">Progreso: {formatoTiempo(proyectoGuardado.timestampVideo || 0)} / {formatoTiempo(duracion)}</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={() => {
+                setProyectoId(proyectoGuardado.id);
+                setPuntos(proyectoGuardado.historial || []);
+                if (videoRef.current) videoRef.current.currentTime = proyectoGuardado.timestampVideo || 0;
+                if (proyectoGuardado.configuracion) {
+                  const c = proyectoGuardado.configuracion;
+                  if (c.volPiano !== undefined) setVolPiano(c.volPiano);
+                  if (c.volBateria !== undefined) setVolBateria(c.volBateria);
+                  if (c.volCuerdas !== undefined) setVolCuerdas(c.volCuerdas);
+                  if (c.tipoPiano) setTipoPiano(c.tipoPiano);
+                  if (c.tipoCuerdas) setTipoCuerdas(c.tipoCuerdas);
+                }
+                setMostrarDialogoContinuar(false);
+              }} className="px-6 py-3 rounded-lg border-2 border-black bg-[#00D4AA] text-[#1A3A5C] font-bold shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all">CONTINUAR DONDE LO DEJASTE</button>
+              <button onClick={() => { setMostrarDialogoContinuar(false); setProyectoGuardado(null); }} className="px-6 py-3 rounded-lg border-2 border-black bg-[#E0254F] text-[#FFF8E7] font-bold shadow-[3px_3px_0px_#000000] hover:shadow-[1px_1px_0px_#000000] transition-all">EMPEZAR DE NUEVO</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mensajeGuardado && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-lg border-2 border-black shadow-[4px_4px_0px_#000000]" style={{ backgroundColor: mensajeGuardado.includes('ERROR') ? '#E0254F' : '#00D4AA', color: '#1A3A5C' }}>
+          <p className="font-bold text-sm">{mensajeGuardado}</p>
+        </div>
+      )}
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
