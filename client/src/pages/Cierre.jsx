@@ -112,7 +112,12 @@ if (player) { player.seek(0); player.start(); }
     setMostrarAnimacion(true);
     try {
       const token = localStorage.getItem('token');
-      const proy = await obtenerProyectoPorId(id);
+      const res = await fetch('https://cine-accesible-api.onrender.com/api/proyectos?videoId=' + id, {
+        headers: { Authorization: 'Bearer ' + token },
+      });
+      const proyectos = await res.json();
+      const proy = proyectos.find(p => p.estado === 'borrador');
+      
       if (proy) {
         await fetch('https://cine-accesible-api.onrender.com/api/proyectos/' + proy.id, {
           method: 'PUT',
