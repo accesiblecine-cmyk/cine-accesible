@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import * as Tone from 'tone';
-import { obtenerProyecto, guardarProyecto } from '../utils/api';
+import { obtenerProyectoPorId } from '../utils/api';
 
 const tonos = [
   { id: 'suave', nombre: 'SUAVE Y CALMADO', desc: 'Desaturacion lenta, particulas suaves, fade out.' },
@@ -11,9 +11,9 @@ const tonos = [
 ];
 
 const instrumentos = [
-  { id: 'piano', nombre: 'PIANO' },
-  { id: 'bateria', nombre: 'BATERIA' },
-  { id: 'cuerdas', nombre: 'CUERDAS' },
+  { id: 'piano', nombre: 'PIANO', osc: 'triangle' },
+  { id: 'bateria', nombre: 'BATERIA', osc: 'square' },
+  { id: 'cuerdas', nombre: 'CUERDAS', osc: 'sine' },
 ];
 
 export default function Cierre() {
@@ -25,17 +25,45 @@ export default function Cierre() {
   const [secuencia, setSecuencia] = useState([]);
   const [guardado, setGuardado] = useState(false);
   const [mensaje, setMensaje] = useState('');
+  const [mostrarAnimacion, setMostrarAnimacion] = useState(false);
   const synthRef = useRef(null);
+  const drumSamplerRef = useRef(null);
   const intervalRef = useRef(null);
+  const instActual = instrumentos.find(i => i.id === instrumentoSeleccionado) || instrumentos[0];
 
   useEffect(() => {
-    synthRef.current = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'triangle' },
-      envelope: { attack: 0.02, decay: 0.3, sustain: 0.3, release: 0.8 },
-    }).toDestination();
-    synthRef.current.volume.value = -5;
-    return () => { if (synthRef.current) synthRef.current.dispose(); };
-  }, []);
+    if (synthRef.current) { synthRef.current.dispose(); synthRef.current = null; }
+    if (drumSamplerRef.current) {
+  Object.values(drumSamplerRef.current).forEach(p => p?.dispose?.());
+  drumSamplerRef.current = null;
+}
+
+    if (instrumentoSeleccionado === 'bateria') {
+     const vol = new Tone.Volume(10).toDestination();
+drumSamplerRef.current = {
+  kick: new Tone.Player('/samples/kick.wav').connect(vol),
+  snare: new Tone.Player('/samples/snare.wav').connect(vol),
+  hihat: new Tone.Player('/samples/hihat.wav').connect(vol),
+  crash: new Tone.Player('/samples/crash.wav').connect(vol),
+  tom: new Tone.Player('/samples/tom.wav').connect(vol),
+};
+    } else {
+      const oscType = instrumentoSeleccionado === 'piano' ? 'triangle' : 'sine';
+      const release = instrumentoSeleccionado === 'cuerdas' ? 1.5 : 0.8;
+      synthRef.current = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: oscType },
+        envelope: { attack: 0.02, decay: 0.3, sustain: 0.3, release: release },
+      }).toDestination();
+      synthRef.current.volume.value = -5;
+    }
+     return () => {
+      if (synthRef.current) synthRef.current.dispose();
+      if (drumSamplerRef.current) {
+        Object.values(drumSamplerRef.current).forEach(p => p?.dispose?.());
+        drumSamplerRef.current = null;
+      }
+    };
+  }, [instrumentoSeleccionado]);
 
   const iniciarGrabacion = useCallback(async () => {
     await Tone.start();
@@ -56,23 +84,35 @@ export default function Cierre() {
   }, []);
 
   const tocarNota = useCallback(async (nota) => {
-    if (!grabando || !synthRef.current) return;
+    if (!grabando) return;
     await Tone.start();
-    synthRef.current.triggerAttackRelease(nota, '8n');
+    if (instrumentoSeleccionado === 'bateria' && drumSamplerRef.current) {
+      const player = drumSamplerRef.current?.kick;
+if (player) { player.seek(0); player.start(); }
+    } else if (synthRef.current) {
+      synthRef.current.triggerAttackRelease(nota, '8n');
+    }
     setSecuencia(prev => [...prev, { tiempo: tiempoGrabacion, nota, instrumento: instrumentoSeleccionado }]);
   }, [grabando, tiempoGrabacion, instrumentoSeleccionado]);
 
   const previsualizar = useCallback(async () => {
     await Tone.start();
     secuencia.forEach((p) => {
-      setTimeout(() => { if (synthRef.current) synthRef.current.triggerAttackRelease(p.nota, '8n'); }, p.tiempo * 1000);
+      setTimeout(() => {
+        if (instrumentoSeleccionado === 'bateria' && drumSamplerRef.current) {
+          drumSamplerRef.current.triggerAttackRelease('C4', '8n');
+        } else if (synthRef.current) {
+          synthRef.current.triggerAttackRelease(p.nota, '8n');
+        }
+      }, p.tiempo * 1000);
     });
-  }, [secuencia]);
+  }, [secuencia, instrumentoSeleccionado]);
 
   const handleGuardarCierre = async () => {
+    setMostrarAnimacion(true);
     try {
       const token = localStorage.getItem('token');
-      const proy = await obtenerProyecto(id);
+      const proy = await obtenerProyectoPorId(id);
       if (proy) {
         await fetch('https://cine-accesible-api.onrender.com/api/proyectos/' + proy.id, {
           method: 'PUT',
@@ -86,19 +126,36 @@ export default function Cierre() {
           body: JSON.stringify({ videoId: id, cierre: { tono: tonoSeleccionado, instrumento: instrumentoSeleccionado, secuencia }, estado: 'completado' }),
         });
       }
-      setGuardado(true);
-      setMensaje('PROYECTO COMPLETADO');
+      setTimeout(() => { setGuardado(true); setMostrarAnimacion(false); }, 2000);
     } catch (e) {
       setMensaje('ERROR AL GUARDAR');
+      setMostrarAnimacion(false);
       setTimeout(() => setMensaje(''), 2000);
     }
   };
 
   const notasVisuales = ['DO', 'RE', 'MI', 'FA', 'SOL', 'LA', 'SI', 'DO+'];
   const notasReales = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
+  const coloresAnimacion = {
+    suave: 'from-[#2B1B3D] to-black',
+    intenso: 'from-[#E0254F] to-black',
+    suspensivo: 'from-[#4DE8FF] to-black',
+    silencio: 'from-black to-black',
+  };
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#2B1B3D' }}>
+      {mostrarAnimacion && (
+        <div className={'fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-b ' + coloresAnimacion[tonoSeleccionado]}>
+          <p className="text-5xl font-bold text-[#FFE156] animate-pulse" style={{ textShadow: '4px 4px 0px #000000' }}>
+            {tonoSeleccionado === 'suave' && 'DESVANECIENDO...'}
+            {tonoSeleccionado === 'intenso' && 'EXPLOTANDO...'}
+            {tonoSeleccionado === 'suspensivo' && 'FRAGMENTANDO...'}
+            {tonoSeleccionado === 'silencio' && 'SILENCIO...'}
+          </p>
+        </div>
+      )}
+
       <div className="px-6 py-3 border-b-2 border-black flex gap-2 items-center text-sm font-bold" style={{ backgroundColor: '#1A3A5C' }}>
         <Link to="/biblioteca" className="text-[#4DE8FF] hover:text-[#FFE156]">BIBLIOTECA</Link>
         <span className="text-[#FFF8E7]">/</span>
