@@ -93,7 +93,7 @@ function App() {
   <Route path="/editor/:id" element={<Layout><RutaProtegida><Editor /></RutaProtegida></Layout>} />
   <Route path="/editor/:id/cierre" element={<Layout><RutaProtegida><Cierre /></RutaProtegida></Layout>} />
   <Route path="/perfil" element={<Layout><RutaProtegida><Perfil /></RutaProtegida></Layout>} />
-<Route path="/ver/:id" element={<Layout><Visualizador /></Layout>} />
+<Route path="/ver/:id" element={<Layout><RutaProtegida><Visualizador /></RutaProtegida></Layout>} />
 </Routes>
     </BrowserRouter>
   );
