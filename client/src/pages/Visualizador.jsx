@@ -233,6 +233,16 @@ export default function Visualizador() {
           {videoCargado && <SubtitulosInstrumentos puntos={puntos} tiempoActual={videoRef.current?.currentTime || 0} />}
         </div>
       </div>
+<div className="w-full max-w-4xl mx-auto px-4 pb-2">
+  <input
+    type="range"
+    min="0"
+    max={videoRef.current?.duration || 0}
+    value={videoRef.current?.currentTime || 0}
+    onChange={(e) => { const v = videoRef.current; if (v) v.currentTime = parseFloat(e.target.value); }}
+    className="w-full accent-[#FF6B3D]"
+  />
+</div>
       <div className="flex justify-center gap-4 py-4 border-t-2 border-black" style={{ backgroundColor: '#1A3A5C' }}>
         <button onClick={handlePlay} className="px-8 py-3 rounded-lg border-2 border-black font-bold text-lg shadow-[4px_4px_0px_#000000] hover:shadow-[2px_2px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all" style={{ backgroundColor: '#00D4AA', color: '#1A3A5C' }}>
           {terminado ? 'REINICIAR' : reproduciendo ? 'PAUSA' : 'REPRODUCIR'}
