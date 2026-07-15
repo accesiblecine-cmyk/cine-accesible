@@ -197,7 +197,7 @@ export default function Visualizador() {
     };
     video.addEventListener('timeupdate', onTimeUpdate);
     return () => video.removeEventListener('timeupdate', onTimeUpdate);
-  }, [puntos, cierre]);
+  }, [puntos, cierre, videoCargado]);
 
   const handlePlay = async () => {
     await Tone.start();
